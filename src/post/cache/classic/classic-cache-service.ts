@@ -1,3 +1,4 @@
+import { Post } from "@prisma/client";
 import Redis, { Redis as RedisClient } from "ioredis";
 
 
@@ -18,7 +19,7 @@ export class ClassicCacheService {
         return post ? JSON.parse(post) : null
     }
 
-    async setPost(id: number, text: string): Promise<void>{
-        await this.redisClient.set(`post:${id}`, JSON.stringify({id, text}), 'EX', 3600)
+    async setPost(post: Post): Promise<void>{
+        await this.redisClient.set(`post:${post.id}`, JSON.stringify(post), 'EX', 3600)
     }
 }
