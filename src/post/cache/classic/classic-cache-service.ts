@@ -8,7 +8,7 @@ export class ClassicCacheService {
 
     constructor(){
         this.redisClient = new Redis({
-            host: process.env.REDIS_HOST || 'localhost',  // Debe usar 'redis' en Docker
+            host: process.env.REDIS_HOST || 'localhost',
             port: 6379
         })
     }
