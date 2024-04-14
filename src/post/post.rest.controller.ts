@@ -31,8 +31,9 @@ export class PostRestController {
   }
 
   @Get('classic-cache/:id')
-  async getHero(@Param('id') id: number): Promise<any> {
+  async getPost(@Param('id') id: number): Promise<any> {
     const cachedPost = await this.classicCacheService.getPost(id);
+
     if (cachedPost) {
       return cachedPost;
     }
