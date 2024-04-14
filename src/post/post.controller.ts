@@ -11,10 +11,9 @@ export class PostController {
   @GrpcMethod('PostService', 'FindOne')
   async findOne({id}: {id:number}): Promise<Post> {
     try {
-      console.log("retrieving post in server:", id)
     const post = await this.prisma.post.findUnique({
       where: {
-         id
+        id
       }
     })
     return post;
@@ -23,3 +22,4 @@ export class PostController {
     }
   }
 }
+
