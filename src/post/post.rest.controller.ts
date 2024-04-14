@@ -26,16 +26,17 @@ export class PostRestController {
   }
 
   @Get('classic-cache/:id')
-  async getPost(@Param('id') id: number): Promise<Post> {
+  async getPost(@Param('id') id: number): Promise<Post & {fromCache:boolean}> {
     let post = await this.classicCacheService.getPost(id);
-    console.log(id, "param in rest controller")
+    let fromCache = true;
     if (!post) {
       const postObservable: Observable<Post> = this.postService.findOne({id});
       post = await new Promise<Post>((resolve) =>
         postObservable.subscribe(resolve)
       );
       await this.classicCacheService.setPost(post);
+      fromCache = false;
     }
-    return post;
+    return {...post, fromCache}; 
   }
 }
