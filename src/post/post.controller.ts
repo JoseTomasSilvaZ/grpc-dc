@@ -10,6 +10,7 @@ export class PostController {
 
   @GrpcMethod('PostService', 'FindOne')
   async findOne({id}: {id:number}): Promise<Research> {
+    console.log("inside grpc")
     try {
       console.log(id)
     const post = await this.prisma.research.findUnique({

@@ -1,41 +1,51 @@
+
+
+
 import { Injectable } from '@nestjs/common';
-import { Post, Research } from "@prisma/client";
-import Redis, { Redis as RedisClient, Cluster, ClusterNode } from "ioredis";
+import { Research } from "@prisma/client";
+import Redis from "ioredis";
 
 @Injectable()
 export class PartitionedCacheService {
-    // private partitions: Record<number, RedisClient>;
-    private cluster: Cluster
+    private cluster: any;
     constructor() {
-        const nodes: ClusterNode[] = [
-            {host: "localhost", port: 6379},
-            {host: "localhost", port: 6380},
-            {host: "localhost", port: 6381},
-        ]
-        
+        const nodes = [
+            {host: "173.18.0.10", port: 6379},  
+            {host: "173.18.0.11", port: 6380}, 
+            {host: "173.18.0.12", port: 6381},
+        ];
         this.cluster = new Redis.Cluster(nodes, {
-            redisOptions: {
-                password: "my_password"
-            }
-        })
+            scaleReads: 'slave',
+            enableAutoPipelining: true,
+            slotsRefreshTimeout: 100000
+        });
+     
     }
-
-    // private getPartitionId(id: number): number {
-    //     return (id % Object.keys(this.partitions).length) + 1;
-    // }
-    
-
-    async getPost(id: number): Promise< Research | null> {
-        // const partitionId = this.getPartitionId(id);
-        // const post = await this.partitions[partitionId].get(`post:${id}`);
-        // return post ? JSON.parse(post) : null;
-        const post = await this.cluster.get(`post:${id}`)
-        return post ? JSON.parse(post) : null
+    async getPost(id: number): Promise<Research | null> {
+        console.log("Getting post from Redis", id);
+        try {
+            const post = await this.cluster.get(`post:${id}`);
+            console.log(`Post ${id} retrieved from Redis`)
+            return post ? JSON.parse(post) : null;
+        } catch (error) {
+            console.error("Error retrieving post from Redis:", error);
+            return null;
+        }
+        return null
     }
 
     async setPost(post: Research): Promise<void> {
-        // const partitionId = this.getPartitionId(post.id);
-        // await this.partitions[partitionId].set(`post:${post.id}`, JSON.stringify(post), 'EX', 3600);
-        await this.cluster.set(`post:${post.id}`, JSON.stringify(post), 'EX', 3600);
+        if (!post || post.id === undefined) {
+            console.error("Invalid post data; cannot save to Redis.");
+            return;
+        }
+
+        console.log(`Setting post in Redis with ID: ${post.id}`);
+        try {
+            const result = await this.cluster.set(`post:${post.id}`, JSON.stringify(post), 'EX', 3600);
+            console.log(`Post ${post.id} set in Redis with expiry, result: ${result}`);
+        } catch (error) {
+            console.error(`Error setting post ${post.id} in Redis:`, error);
+        }
     }
 }
