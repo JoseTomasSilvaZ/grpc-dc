@@ -3,7 +3,8 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { Client, ClientGrpc, Transport } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { ClassicCacheService } from './cache/classic/classic-cache-service';
-import { Post } from '@prisma/client';
+import { PartitionedCacheService } from './cache/partitioned/partitioned-cache-service';
+import { Post, Research } from '@prisma/client';
 
 @Controller('posts')
 export class PostRestController {
@@ -19,7 +20,7 @@ export class PostRestController {
 
   private postService: any;
 
-  constructor(private classicCacheService: ClassicCacheService) {}
+  constructor(private classicCacheService: ClassicCacheService, private partitionedCacheService: PartitionedCacheService) {}
 
   onModuleInit() {
     this.postService = this.client.getService<any>('PostService');
@@ -35,6 +36,21 @@ export class PostRestController {
         postObservable.subscribe(resolve)
       );
       await this.classicCacheService.setPost(post);
+      fromCache = false;
+    }
+    return {...post, fromCache}; 
+  }
+
+  @Get('partitioned-cache/:id')
+  async getPartitionedPost(@Param('id') id: number): Promise<Research & {fromCache:boolean}> {
+    let post = await this.partitionedCacheService.getPost(id);
+    let fromCache = true;
+    if (!post) {
+      const postObservable: Observable<Research> = this.postService.findOne({id});
+      post = await new Promise<Research>((resolve) =>
+        postObservable.subscribe(resolve)
+      );
+      await this.partitionedCacheService.setPost(post);
       fromCache = false;
     }
     return {...post, fromCache}; 

@@ -12,5 +12,23 @@ message PostById {
 
 message Post {
   int32 id = 1;
-  string text = 2;
+  string cord_uid = 2;
+  string sha = 3;
+  string source = 4;
+  string title = 5;
+  string doi = 6;
+  string pmcid = 7;
+  string pubmed_id = 8;
+  string license = 9;
+  string abstract = 10;
+  string publish_time = 11;
+  string authors = 12;
+  string journal = 13;
+  string mag_id = 14;
+  string who_covidence_id = 15;
+  string arxiv_id = 16;
+  string pdf_json_files = 17;
+  string pmc_json_files = 18;
+  string url = 19;
+  string s2_id = 20;
 }
