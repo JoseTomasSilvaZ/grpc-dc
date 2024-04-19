@@ -22,7 +22,6 @@ export class PartitionedCacheService {
             enableAutoPipelining: true,
             slotsRefreshTimeout: 100000
         });
-     
     }
     async getPost(id: number): Promise<Research | null> {
         console.log("Getting post from Redis", id);
