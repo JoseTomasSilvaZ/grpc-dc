@@ -9,7 +9,7 @@ async function bootstrap() {
     options: {
       package: 'post',
       protoPath: 'proto/hero.proto',
-      url: 'localhost:50051'
+      url: 'localhost:50051',
     },
   });
   await app.startAllMicroservices();
