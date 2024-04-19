@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  redis:
+  redis-master:
     image: bitnami/redis
-    container_name: redis1
+    container_name: redis-master
     ports:
       - "6379:6379"
     volumes:
@@ -12,7 +12,43 @@ services:
       - redis-net
     environment:
       REDIS_PASSWORD: "123"
-    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lfu
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lru
+
+  redis-slave-1:
+    image: bitnami/redis
+    container_name: redis-slave-1
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_1_data:/bitnami/redis/data
+    networks:
+      - redis-net
+    depends_on:
+      - redis-master
+    environment:
+      REDIS_PASSWORD: "123"
+      REDIS_MASTER_HOST: redis-master
+      REDIS_MASTER_PORT_NUMBER: 6379
+      REDIS_MASTER_PASSWORD: "123"
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lru
+  
+  redis-slave-2:
+    image: bitnami/redis
+    container_name: redis-slave-2
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_1_data:/bitnami/redis/data
+    networks:
+      - redis-net
+    depends_on:
+      - redis-master
+    environment:
+      REDIS_PASSWORD: "123"
+      REDIS_MASTER_HOST: redis-master
+      REDIS_MASTER_PORT_NUMBER: 6379
+      REDIS_MASTER_PASSWORD: "123"
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lru
 
   nest-api:
     build: .
