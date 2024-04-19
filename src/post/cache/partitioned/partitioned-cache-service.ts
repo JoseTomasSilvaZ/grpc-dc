@@ -10,9 +10,12 @@ export class PartitionedCacheService {
     private cluster: any;
     constructor() {
         const nodes = [
-            {host: "173.18.0.10", port: 6379},  
-            {host: "173.18.0.11", port: 6380}, 
-            {host: "173.18.0.12", port: 6381},
+            // {host: "173.18.0.10", port: 6379},  
+            // {host: "173.18.0.11", port: 6380}, 
+            // {host: "173.18.0.12", port: 6381},
+            {host: "redis_1", port: 6379},  
+            {host: "redis_2", port: 6380}, 
+            {host: "redis_3", port: 6381},
         ];
         this.cluster = new Redis.Cluster(nodes, {
             scaleReads: 'slave',
