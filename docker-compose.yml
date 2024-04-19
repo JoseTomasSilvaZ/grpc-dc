@@ -1,61 +1,69 @@
 version: '3.8'
 
 services:
-  redis-master:
-    image: bitnami/redis
-    container_name: redis-master
+  # Redis Cluster Services
+  redis_1:
+    image: 'redis:latest'
+    container_name: redis_1
     ports:
-      - "6379:6379"
+      - "6379"
     volumes:
-      - redis_1_data:/bitnami/redis/data
+      - redis_1_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     networks:
-      - redis-net
-    environment:
-      REDIS_PASSWORD: "123"
-    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lfu
+      redis_cluster_net:
+        ipv4_address: 173.18.0.10
 
-  redis-slave-1:
-    image: bitnami/redis
-    container_name: redis-slave-1
+  redis_2:
+    image: 'redis:latest'
+    container_name: redis_2
     ports:
-      - "6380:6379"
+      - "6379"
     volumes:
-      - redis_1_data:/bitnami/redis/data
+      - redis_2_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     networks:
-      - redis-net
-    depends_on:
-      - redis-master
-    environment:
-      REDIS_PASSWORD: "123"
-      REDIS_MASTER_HOST: redis-master
-      REDIS_MASTER_PORT_NUMBER: 6379
-      REDIS_MASTER_PASSWORD: "123"
-    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lfu
+      redis_cluster_net:
+        ipv4_address: 173.18.0.11
+
+  redis_3:
+    image: 'redis:latest'
+    container_name: redis_3
+    ports:
+      - "6379"
+    volumes:
+      - redis_3_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      redis_cluster_net:
+        ipv4_address: 173.18.0.12
   
-  redis-slave-2:
-    image: bitnami/redis
-    container_name: redis-slave-2
-    ports:
-      - "6381:6379"
-    volumes:
-      - redis_1_data:/bitnami/redis/data
-    networks:
-      - redis-net
+  # Ephemeral container to create the Redis cluster connections.
+  # Once the setup is done, this container shuts down
+  # and the cluster can be used by the service app container
+  cluster_initiator:
+    container_name: cluster_initiator
+    build:
+      context: ./docker/redis
+      dockerfile: Dockerfile
+    tty: true
     depends_on:
-      - redis-master
-    environment:
-      REDIS_PASSWORD: "123"
-      REDIS_MASTER_HOST: redis-master
-      REDIS_MASTER_PORT_NUMBER: 6379
-      REDIS_MASTER_PASSWORD: "123"
-    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-lfu
-
+      - redis_1
+      - redis_2
+      - redis_3
+    networks:
+      redis_cluster_net:
+        ipv4_address: 173.18.0.13
+  # Other services unchanged...
   nest-api:
     build: .
     container_name: nest-api
     restart: always
     ports:
-      - "3000:3000"
+      - 3000:3000
     depends_on:
       - postgres
     env_file:
@@ -64,7 +72,7 @@ services:
       - .:/app
       - /app/node_modules
     networks:
-      - redis-net
+      - redis_cluster_net
 
   postgres:
     image: postgres:13
@@ -72,23 +80,26 @@ services:
     restart: always
     environment:
       POSTGRES_USER: task1
-      POSTGRES_PASSWORD: "123"
+      POSTGRES_PASSWORD: 123
       POSTGRES_DB: dataset
     ports:
-      - "5432:5432"
+      - 5432:5432
     env_file:
       - .env
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - redis-net
+      - redis_cluster_net
 
 volumes:
-  redis_1_data:
-  db_data:
+  redis_1_data: {}
+  redis_2_data: {}
+  redis_3_data: {}
+  db_data: {}
+  
 
 networks:
-  redis-net:
+  redis_cluster_net:
     driver: bridge
     ipam:
       driver: default
