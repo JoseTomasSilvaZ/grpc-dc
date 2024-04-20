@@ -2,7 +2,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { Client, ClientGrpc, Transport } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
-import { Post, Research } from '@prisma/client';
 import { PartitionedCacheService } from './cache/partitioned.cache.service';
 import { RetrievedPost } from './types';
 
