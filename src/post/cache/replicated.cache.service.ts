@@ -53,14 +53,10 @@ export class ReplicatedCacheService {
             selectedClient = this.slaves[clientIndex]; 
         }
     
+        const sourceLabel = clientIndex === 0 ? "Redis master" : `Redis slave ${clientIndex}`;
         const post = await selectedClient.get(`post:${id}`);
-        if (post) {
-            const sourceLabel = clientIndex === 0 ? "Redis master" : `Redis slave ${clientIndex}`;
-            const retrievedPost = {post: JSON.parse(post), source: sourceLabel, fromCache: true};
-            return retrievedPost;
-        }
-    
-        return null;
+        const retrievedPost = {post: JSON.parse(post), source: sourceLabel, fromCache:true};
+        return retrievedPost;
     }
     
 
