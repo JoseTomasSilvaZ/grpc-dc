@@ -3,11 +3,16 @@ syntax = "proto3";
 package post;
 
 service PostService {
-  rpc FindOne (PostById) returns (Post) {}
+  rpc FindOne (PostById) returns (RetrievedPost) {}
 }
 
 message PostById {
   int32 id = 1;
+}
+
+message RetrievedPost {
+  Post post = 1;
+  string source = 2;
 }
 
 message Post {
