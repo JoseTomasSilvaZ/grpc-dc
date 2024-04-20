@@ -44,13 +44,25 @@ export class ReplicatedCacheService {
     }
 
     async getPost(id: number): Promise<RetrievedPost | null> {
-        const randomizedSlave = Math.floor(Math.random() * 2) + 1;
-        console.log({randomizedSlave})
-        const post = await this.slaves[randomizedSlave].get(`post:${id}`);
-        const retrievedPost = {post: JSON.parse(post), source: `Redis slave ${randomizedSlave}`, fromCache: true}
-
-        return post ? retrievedPost : null;
+        const clientIndex = Math.floor(Math.random() * 3); 
+        let selectedClient: RedisClient;
+    
+        if (clientIndex === 0) {
+            selectedClient = this.redisClient; 
+        } else {
+            selectedClient = this.slaves[clientIndex]; 
+        }
+    
+        const post = await selectedClient.get(`post:${id}`);
+        if (post) {
+            const sourceLabel = clientIndex === 0 ? "Redis master" : `Redis slave ${clientIndex}`;
+            const retrievedPost = {post: JSON.parse(post), source: sourceLabel, fromCache: true};
+            return retrievedPost;
+        }
+    
+        return null;
     }
+    
 
     async setPost(post: Research): Promise<void> {
         
