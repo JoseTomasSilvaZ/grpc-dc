@@ -64,30 +64,11 @@ services:
     restart: always
     ports:
       - 3000:3000
-    depends_on:
-      - postgres
     env_file:
       - ./.env
     volumes:
       - .:/app
       - /app/node_modules
-    networks:
-      - redis_cluster_net
-
-  postgres:
-    image: postgres:13
-    container_name: postgresprisma
-    restart: always
-    environment:
-      POSTGRES_USER: task1
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: dataset
-    ports:
-      - 5432:5432
-    env_file:
-      - .env
-    volumes:
-      - db_data:/var/lib/postgresql/data
     networks:
       - redis_cluster_net
 
