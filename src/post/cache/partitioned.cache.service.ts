@@ -4,6 +4,7 @@
 import { Injectable } from '@nestjs/common';
 import { Research } from "@prisma/client";
 import Redis from "ioredis";
+import { RetrievedPost } from '../types';
 
 @Injectable()
 export class PartitionedCacheService {
@@ -21,12 +22,13 @@ export class PartitionedCacheService {
         });
      
     }
-    async getPost(id: number): Promise<Research | null> {
+    async getPost(id: number): Promise<RetrievedPost | null> {
         console.log("Getting post from Redis", id);
         try {
             const post = await this.cluster.get(`post:${id}`);
             console.log(`Post ${id} retrieved from Redis`)
-            return post ? JSON.parse(post) : null;
+            const retrievedPost = {post: JSON.parse(post), source: "Redis", fromCache: true};
+            return post ? retrievedPost : null;
         } catch (error) {
             console.error("Error retrieving post from Redis:", error);
             return null;
