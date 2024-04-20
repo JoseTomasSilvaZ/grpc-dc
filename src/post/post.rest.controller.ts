@@ -4,6 +4,7 @@ import { Client, ClientGrpc, Transport } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { Post, Research } from '@prisma/client';
 import { PartitionedCacheService } from './cache/partitioned.cache.service';
+import { RetrievedPost } from './types';
 
 @Controller('posts')
 export class PostRestController {
@@ -29,20 +30,21 @@ export class PostRestController {
 
 
   @Get('partitioned-cache/:id')
-  async getPartitionedPost(@Param('id') id: number): Promise<Research & {fromCache:boolean}> {
+  async getPost(@Param('id') id: number): Promise<RetrievedPost> {
     let post = await this.partitionedCacheService.getPost(id);
+    console.log('Post from Redis:', post);
     let fromCache = true;
     if (!post) {
       try {
-        console.log("Fetching post from partitioned cache", id);
-        const postObservable: Observable<Research> = this.postService.findOne({id});
-        post = await new Promise<Research>((resolve, reject) =>
+        const postObservable: Observable<RetrievedPost> = this.postService.findOne({id});
+        post = await new Promise<RetrievedPost>((resolve, reject) =>
           postObservable.subscribe({
             next: resolve,
             error: reject
           })
         );
-        await this.partitionedCacheService.setPost(post);
+        console.log('Post from gRPC service:', post);
+        await this.partitionedCacheService.setPost(post.post);
         fromCache = false;
       } catch (error) {
         console.error('Error fetching post from gRPC service:', error);
