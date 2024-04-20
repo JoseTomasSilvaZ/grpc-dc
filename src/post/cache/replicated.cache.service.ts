@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Post, Research } from "@prisma/client";
 import Redis, { Redis as RedisClient } from "ioredis";
+import { RetrievedPost } from '../types';
 
 @Injectable()
 export class ReplicatedCacheService {
@@ -42,12 +43,26 @@ export class ReplicatedCacheService {
         });
     }
 
-    async getPost(id: number): Promise<Research | null> {
-        const randomizedSlave = Math.floor(Math.random() * 2) + 1;
-        console.log({randomizedSlave})
-        const post = await this.slaves[randomizedSlave].get(`post:${id}`);
-        return post ? JSON.parse(post) : null;
+    async getPost(id: number): Promise<RetrievedPost | null> {
+        const clientIndex = Math.floor(Math.random() * 3); 
+        let selectedClient: RedisClient;
+    
+        if (clientIndex === 0) {
+            selectedClient = this.redisClient; 
+        } else {
+            selectedClient = this.slaves[clientIndex]; 
+        }
+    
+        const post = await selectedClient.get(`post:${id}`);
+        if (post) {
+            const sourceLabel = clientIndex === 0 ? "Redis master" : `Redis slave ${clientIndex}`;
+            const retrievedPost = {post: JSON.parse(post), source: sourceLabel, fromCache: true};
+            return retrievedPost;
+        }
+    
+        return null;
     }
+    
 
     async setPost(post: Research): Promise<void> {
         
