@@ -1,0 +1,31 @@
+version: '100.0'
+
+services: 
+  postgres:
+    image: postgres:13
+    container_name: postgresprisma
+    restart: always
+    environment:
+      POSTGRES_USER: task1
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: dataset
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/db-init:/docker-entrypoint-initdb.d
+    networks:
+      - redis-net
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  redis-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.18.0.0/16
