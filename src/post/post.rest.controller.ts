@@ -2,8 +2,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { Client, ClientGrpc, Transport } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
-import { Post, Research } from '@prisma/client';
 import { ClassicCacheService } from './cache/classic.cache.service';
+import { RetrievedPost } from './types';
 
 @Controller('posts')
 export class PostRestController {
@@ -28,20 +28,21 @@ export class PostRestController {
   }
 
   @Get('classic-cache/:id')
-  async getPost(@Param('id') id: number): Promise<Research & {fromCache:boolean}> {
-    console.log(`Fetching post with ID: ${id}`);
+  async getPost(@Param('id') id: number): Promise<RetrievedPost> {
     let post = await this.classicCacheService.getPost(id);
+    console.log('Post from Redis:', post);
     let fromCache = true;
     if (!post) {
       try {
-        const postObservable: Observable<Research> = this.postService.findOne({id});
-        post = await new Promise<Research>((resolve, reject) =>
+        const postObservable: Observable<RetrievedPost> = this.postService.findOne({id});
+        post = await new Promise<RetrievedPost>((resolve, reject) =>
           postObservable.subscribe({
             next: resolve,
             error: reject
           })
         );
-        await this.classicCacheService.setPost(post);
+        console.log('Post from gRPC service:', post);
+        await this.classicCacheService.setPost(post.post);
         fromCache = false;
       } catch (error) {
         console.error('Error fetching post from gRPC service:', error);

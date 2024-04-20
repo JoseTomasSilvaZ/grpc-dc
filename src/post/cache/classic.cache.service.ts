@@ -1,5 +1,6 @@
 import { Post, Research } from "@prisma/client";
 import Redis, { Redis as RedisClient } from "ioredis";
+import { RetrievedPost } from "../types";
 
 
 
@@ -15,9 +16,10 @@ export class ClassicCacheService {
         })
     }
 
-    async getPost(id: number): Promise<Research| null>{
+    async getPost(id: number): Promise<RetrievedPost| null>{
         const post = await this.redisClient.get(`post:${id}`)
-        return post ? JSON.parse(post) : null
+        const retrievedPost = {post: JSON.parse(post), source: "Redis", fromCache: true}
+        return post ? retrievedPost : null
     }
 
     async setPost(post: Research): Promise<void>{
