@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { Post, Research } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { RetrievedPost } from './types';
 
 @Controller()
 export class PostController {
@@ -9,7 +9,7 @@ export class PostController {
   constructor(private readonly prisma: PrismaService){}
 
   @GrpcMethod('PostService', 'FindOne')
-  async findOne({id}: {id:number}): Promise<Research> {
+  async findOne({id}: {id:number}): Promise<RetrievedPost> {
     try {
       console.log(id)
     const post = await this.prisma.research.findUnique({
@@ -17,8 +17,7 @@ export class PostController {
         id
       }
     })
-    console.log("Post in GRPC",{post})
-    return post;
+    return {post, source: "Prisma"};
     } catch (error) {
       console.log(error)
     }
