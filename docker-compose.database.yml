@@ -25,7 +25,3 @@ volumes:
 networks:
   redis-net:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 173.18.0.0/16
