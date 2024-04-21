@@ -39,7 +39,7 @@ services:
     networks:
       redis-net:
         ipv4_address: 173.18.0.12
-
+  
   cluster_initiator:
     container_name: cluster_initiator
     build:
@@ -67,7 +67,6 @@ services:
       - /app/node_modules
     networks:
       - redis-net
-
 volumes:
   redis_1_data: {}
   redis_2_data: {}
