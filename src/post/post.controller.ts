@@ -5,21 +5,20 @@ import { RetrievedPost } from './types';
 
 @Controller()
 export class PostController {
-
-  constructor(private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
 
   @GrpcMethod('PostService', 'FindOne')
-  async findOne({id}: {id:number}): Promise<RetrievedPost> {
+  async findOne({ id }: { id: number }): Promise<RetrievedPost> {
     try {
-      console.log(id)
-    const post = await this.prisma.research.findUnique({
-      where: {
-        id
-      }
-    })
-    return {post, source: "Prisma"};
+      console.log(id);
+      const post = await this.prisma.research.findUnique({
+        where: {
+          id,
+        },
+      });
+      return { post, source: 'Prisma' };
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 }
