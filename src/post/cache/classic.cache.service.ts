@@ -10,7 +10,7 @@ export class ClassicCacheService {
 
     constructor(){
         this.redisClient = new Redis({
-            host: "host.docker.internal",
+            host: "redis1",
             port: 6379,
             password: "123"
         })
