@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Post, Research } from '@prisma/client';
+import { Research } from '@prisma/client';
 import Redis, { Redis as RedisClient } from 'ioredis';
 import { RetrievedPost } from '../types';
 
