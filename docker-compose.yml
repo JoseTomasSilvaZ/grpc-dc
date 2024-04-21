@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Redis Cluster Services
   redis_1:
     image: 'redis:latest'
     container_name: redis_1
@@ -12,7 +11,7 @@ services:
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     networks:
-      redis_cluster_net:
+      redis-net:
         ipv4_address: 173.18.0.10
 
   redis_2:
@@ -25,7 +24,7 @@ services:
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     networks:
-      redis_cluster_net:
+      redis-net:
         ipv4_address: 173.18.0.11
 
   redis_3:
@@ -38,12 +37,9 @@ services:
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     networks:
-      redis_cluster_net:
+      redis-net:
         ipv4_address: 173.18.0.12
   
-  # Ephemeral container to create the Redis cluster connections.
-  # Once the setup is done, this container shuts down
-  # and the cluster can be used by the service app container
   cluster_initiator:
     container_name: cluster_initiator
     build:
@@ -55,9 +51,9 @@ services:
       - redis_2
       - redis_3
     networks:
-      redis_cluster_net:
+      redis-net:
         ipv4_address: 173.18.0.13
-  # Other services unchanged...
+
   nest-api:
     build: .
     container_name: nest-api
@@ -70,9 +66,7 @@ services:
       - .:/app
       - /app/node_modules
     networks:
-      - redis_cluster_net
-
-
+      - redis-net
 volumes:
   redis_1_data: {}
   redis_2_data: {}
@@ -81,7 +75,7 @@ volumes:
   
 
 networks:
-  redis_cluster_net:
+  redis-net:
     driver: bridge
     ipam:
       driver: default
