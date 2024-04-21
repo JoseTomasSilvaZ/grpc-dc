@@ -26,6 +26,9 @@ Inicia el proyecto de NestJS junto a los nodos de Redis
 docker compose up --build
 ```
 
+### Métricas
+Las métricas fueron realizadas con un script de python, puedes encontrar la repo [acá](https://github.com/JoseTomasSilvaZ/grpc-dc-tests)
+
 
 ### Disclaimer
 Para el setup de docker compose de caché particionado, se utilizó código planteado por @brunojppb, en [este repo](https://github.com/brunojppb/redis-cluster-demo/blob/main/redis/entrypoint.sh) 
