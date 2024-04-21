@@ -12,7 +12,7 @@ services:
       - redis-net
     environment:
       REDIS_PASSWORD: "123"
-    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 4mb --maxmemory-policy allkeys-random
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 135mb --maxmemory-policy allkeys-random
 
   nest-api:
     build: .
