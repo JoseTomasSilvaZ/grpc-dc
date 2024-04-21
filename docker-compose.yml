@@ -12,6 +12,8 @@ services:
       - redis-net
     environment:
       REDIS_PASSWORD: "123"
+      REDIS_REPLICATION_MODE: master
+      
     command: /opt/bitnami/scripts/redis/run.sh --maxmemory 135mb --maxmemory-policy allkeys-random
 
   redis-slave-1:
@@ -20,7 +22,7 @@ services:
     ports:
       - "6380:6379"
     volumes:
-      - redis_1_data:/bitnami/redis/data
+      - redis_2_data:/bitnami/redis/data
     networks:
       - redis-net
     depends_on:
@@ -30,6 +32,7 @@ services:
       REDIS_MASTER_HOST: redis-master
       REDIS_MASTER_PORT_NUMBER: 6379
       REDIS_MASTER_PASSWORD: "123"
+      REDIS_REPLICATION_MODE: slave
     command: /opt/bitnami/scripts/redis/run.sh --maxmemory 135mb --maxmemory-policy allkeys-random
   
   redis-slave-2:
@@ -38,7 +41,7 @@ services:
     ports:
       - "6381:6379"
     volumes:
-      - redis_1_data:/bitnami/redis/data
+      - redis_3_data:/bitnami/redis/data
     networks:
       - redis-net
     depends_on:
@@ -48,6 +51,7 @@ services:
       REDIS_MASTER_HOST: redis-master
       REDIS_MASTER_PORT_NUMBER: 6379
       REDIS_MASTER_PASSWORD: "123"
+      REDIS_REPLICATION_MODE: slave
     command: /opt/bitnami/scripts/redis/run.sh --maxmemory 135mb --maxmemory-policy allkeys-random
 
   nest-api:
@@ -66,6 +70,8 @@ services:
 
 volumes:
   redis_1_data:
+  redis_2_data:
+  redis_3_data:
   db_data:
 
 networks:
