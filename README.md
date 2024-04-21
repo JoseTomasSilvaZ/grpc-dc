@@ -1,6 +1,6 @@
-# Tarea 1 - Caché distribuido
--------
+# 🌟 Tarea 1 - Caché distribuido
 
+### Instalación
 Para iniciar el proyecto, clónalo en tu máquina
 
 ```bash
@@ -12,6 +12,7 @@ Luego, instala las dependencias
 ```bash
   npm install
 ```
+### Iniciación
 
 Inicia la base de datos (requiere el dataset dentro de docker/db-init)
 
@@ -24,3 +25,7 @@ Inicia el proyecto de NestJS junto a los nodos de Redis
 ```bash
 docker compose up --build
 ```
+
+
+### Disclaimer
+Para el setup de docker compose de caché particionado, se utilizó código planteado por @brunojppb, en [este repo](https://github.com/brunojppb/redis-cluster-demo/blob/main/redis/entrypoint.sh) 
