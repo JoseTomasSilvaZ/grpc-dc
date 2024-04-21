@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Redis Cluster Services
   redis_1:
     image: 'redis:latest'
     container_name: redis_1
@@ -41,9 +40,7 @@ services:
       redis-net:
         ipv4_address: 173.18.0.12
   
-  # Ephemeral container to create the Redis cluster connections.
-  # Once the setup is done, this container shuts down
-  # and the cluster can be used by the service app container
+
   cluster_initiator:
     container_name: cluster_initiator
     build:
@@ -57,7 +54,6 @@ services:
     networks:
       redis-net:
         ipv4_address: 173.18.0.13
-  # Other services unchanged...
   nest-api:
     build: .
     container_name: nest-api
